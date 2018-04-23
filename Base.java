@@ -37,11 +37,19 @@ class Base extends Helper {
     Scanner stdin = new Scanner(System.in);
     boolean visted;
     FileParser(stdin);
-    System.out.println(nRows + " " + nColumns);
     for (int i = 0; i < nRows; i++) {
-      for (int j = 0; j < nColumns; j++)
+      for (int j = 0; j < nColumns; j++) {
         System.out.print(dataArray[i][j] + " ");
-    System.out.println();
+      }
+      System.out.println();
+    }
+    System.out.println(initialEntropy()) ;
+    String[] tester = new String[nRows-1];
+    for (int i = 0; i<nColumns;i++) {
+      tester = differentValues(i);
+      for (int j = 0; j < tester.length; j++)
+        System.out.print(tester[j]+ " ");
+      System.out.println();
     }
   }
 }
