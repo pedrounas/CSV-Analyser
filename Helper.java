@@ -58,4 +58,53 @@ class Helper {
     return aux;
   }
 
+  public static void columnGain() {
+    double[] gain = new double[nColumns-1];
+    String[] valueList;
+    double entropyOriginal = initialEntropy();
+    for (int i = 1; i < nColumns-1; i++) {
+      valueList = differentValues(i);
+      gain[i] = columnEntropy(valueList,i,entropyOriginal);
+      System.out.println(gain[i]);
+      }
+
+    }
+    //////////////Esta uma merda!
+  public static double columnEntropy(String[] valueList,int column,double entropyOriginal) {
+    int[] nTypes = new int[valueList.length];
+    int nYes = 0, nNo = 0;
+    double gain,entropy,plus,minus,total = 0;
+    for (int i = 1; i < nRows-1; i++) {
+      for (int j = 0; j < nTypes.length; j++) {
+        if (dataArray[i][column].equals(valueList[j]))
+          nTypes[j]++;
+      }
+    }
+    for (int i = 0; i < nTypes.length; i++) {
+      nYes = nNo = 0;
+      entropy = plus = minus = 0;
+      for (int j = 1; j < nRows; j++) {
+        if (dataArray[j][nColumns-1].equals("No") || dataArray[j][nColumns-1].equals("no"))
+          nNo++;
+      }
+
+      for (int j = 1; j < nRows; j++) {
+        if (dataArray[j][nColumns-1].equals("Yes") || dataArray[j][nColumns-1].equals("yes"))
+          nYes++;
+      }
+      minus = (double)nNo/(double)(nTypes[i]);
+      plus = (double)nYes/(double)(nTypes[i]);
+
+      entropy = -(plus*(Math.log(plus)/Math.log(2))) - (minus*(Math.log(minus)/Math.log(2)));
+      if (Double.isNaN(entropy)) {
+        total+= 0*((double)nTypes[i]/(double)(nRows-1));
+      }
+      else {
+        total+=entropy*((double)nTypes[i]/(double)(nRows-1));
+    }
+  }
+      gain = entropyOriginal-total;
+      return gain;
+  }
+
 }

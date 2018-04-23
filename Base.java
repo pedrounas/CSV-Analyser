@@ -44,12 +44,6 @@ class Base extends Helper {
       System.out.println();
     }
     System.out.println(initialEntropy()) ;
-    String[] tester = new String[nRows-1];
-    for (int i = 0; i<nColumns;i++) {
-      tester = differentValues(i);
-      for (int j = 0; j < tester.length; j++)
-        System.out.print(tester[j]+ " ");
-      System.out.println();
-    }
+    columnGain();
   }
 }
