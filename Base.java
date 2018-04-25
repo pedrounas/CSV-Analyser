@@ -35,15 +35,20 @@ class Base extends Helper {
 }
   public static void main(String[] args) {
     Scanner stdin = new Scanner(System.in);
-    boolean visted;
     FileParser(stdin);
-    for (int i = 0; i < nRows; i++) {
+    //ISTO É PARA TESTAR O PARSER
+    /*for (int i = 0; i < nRows; i++) {
       for (int j = 0; j < nColumns; j++) {
         System.out.print(dataArray[i][j] + " ");
       }
       System.out.println();
+    }*/
+    System.out.println(initialEntropy());
+    double[] gain = new double[nColumns-1];
+    gain = columnGain(gain);
+    //ISTO É PARA TESTAR O COLUMN GAIN
+    for (int i = 1; i < nColumns - 1; i++) {
+      System.out.println(gain[i]);
     }
-    System.out.println(initialEntropy()) ;
-    columnGain();
   }
 }

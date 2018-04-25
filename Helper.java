@@ -58,53 +58,51 @@ class Helper {
     return aux;
   }
 
-  public static void columnGain() {
-    double[] gain = new double[nColumns-1];
+  public static double[] columnGain(double[] gain) {
     String[] valueList;
-    double entropyOriginal = initialEntropy();
+    double entropyOriginal = initialEntropy(); //ENTROPIA INICIAL
     for (int i = 1; i < nColumns-1; i++) {
-      valueList = differentValues(i);
+      valueList = differentValues(i); // VAI RECEBER O ARRAY COM OS VALORES DIFERENTES DA COLUNA
       gain[i] = columnEntropy(valueList,i,entropyOriginal);
-      System.out.println(gain[i]);
       }
-
+    return gain;
     }
-    //////////////Esta uma merda!
+
   public static double columnEntropy(String[] valueList,int column,double entropyOriginal) {
     int[] nTypes = new int[valueList.length];
     int nYes = 0, nNo = 0;
-    double gain,entropy,plus,minus,total = 0;
-    for (int i = 1; i < nRows-1; i++) {
-      for (int j = 0; j < nTypes.length; j++) {
-        if (dataArray[i][column].equals(valueList[j]))
-          nTypes[j]++;
+    double gain,plus,minus;
+    double total = 0;
+    double fixedEntropy = entropyOriginal;
+    double[] entropy = new double[valueList.length];
+    for (int i = 0; i < nTypes.length; i++) {
+      for (int j = 1; j < nRows; j++) {
+        if (dataArray[j][column].equals(valueList[i])) // CONTA O NUMERO DE OCORRENCIAS DE UM VALOR
+          nTypes[i]++;
       }
     }
+
     for (int i = 0; i < nTypes.length; i++) {
       nYes = nNo = 0;
-      entropy = plus = minus = 0;
+      plus = minus = 0;
       for (int j = 1; j < nRows; j++) {
-        if (dataArray[j][nColumns-1].equals("No") || dataArray[j][nColumns-1].equals("no"))
+        // VE SE A CONDICAO FINAL É YES OU NO
+        if ((dataArray[j][nColumns-1].equals("No") || dataArray[j][nColumns-1].equals("no")) && dataArray[j][column].equals(valueList[i]))
           nNo++;
       }
-
       for (int j = 1; j < nRows; j++) {
-        if (dataArray[j][nColumns-1].equals("Yes") || dataArray[j][nColumns-1].equals("yes"))
+        if ((dataArray[j][nColumns-1].equals("Yes") || dataArray[j][nColumns-1].equals("yes")) && dataArray[j][column].equals(valueList[i]))
           nYes++;
       }
       minus = (double)nNo/(double)(nTypes[i]);
       plus = (double)nYes/(double)(nTypes[i]);
-
-      entropy = -(plus*(Math.log(plus)/Math.log(2))) - (minus*(Math.log(minus)/Math.log(2)));
-      if (Double.isNaN(entropy)) {
-        total+= 0*((double)nTypes[i]/(double)(nRows-1));
-      }
-      else {
-        total+=entropy*((double)nTypes[i]/(double)(nRows-1));
+      entropy[i] = -(plus*(Math.log(plus)/Math.log(2))) - (minus*(Math.log(minus)/Math.log(2))); //CALCULA A ENTROPIA DESSE VALOR
+      if (Double.isNaN(entropy[i])) entropy[i] = 0;
     }
-  }
-      gain = entropyOriginal-total;
+    for (int i = 0; i < nTypes.length; i++) {
+      total += ((double)nTypes[i]/(double)(nRows-1))*entropy[i]; // CALCULA O INFORMATION VALUE DESSA COLUNA
+    }
+      gain = entropyOriginal-total; // CALCULA O GAIN DA COLUNA
       return gain;
   }
-
 }
