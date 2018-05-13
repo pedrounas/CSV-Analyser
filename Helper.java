@@ -4,18 +4,29 @@ import java.io.*;
 class Helper {
   public static int nColumns;
   public static int nRows;
-  public static String[][] dataArray = new String[500][500];
+  public static String[][] dataArray = new String[200][200];
+  public static String[] diffClasses;
+  public static double[] gain;
+  public static boolean[] finished;
 
   public static double initialEntropy() { // Should be done
     double entropy,plus,minus;
-    int nYes = 0, nNo = 0;
+    int nYes = 0, nNo = 0, total = 0;
+
+    for(int i=1; i<nRows; i++){
+      if(!finished[i]){
+        total++;
+      }
+    }
 
     for (int i = 1; i < nRows; i++) {
+      if (!finished[i])
       if (dataArray[i][nColumns-1].equals("No") || dataArray[i][nColumns-1].equals("no"))
         nNo++;
     }
 
     for (int i = 1; i < nRows; i++) {
+      if (!finished[i])
       if (dataArray[i][nColumns-1].equals("Yes") || dataArray[i][nColumns-1].equals("yes"))
         nYes++;
     }
@@ -28,6 +39,18 @@ class Helper {
     else return entropy;
   }
 
+  public static void checkIfFinished(int column, String value) {
+    for (int i = 1; i < nRows; i++) {
+      if (dataArray[i][column].equals(value))
+        finished[i] = true;
+    }
+    /*for (int i = 1; i < nRows;i++) {
+      System.out.print(finished[i] + " ");
+
+    }
+    System.out.println();*/
+  }
+
   public static String[] differentValues(int column) {
   String[] values = new String[nRows-1];
   int nTypes = 0;
@@ -36,8 +59,9 @@ class Helper {
   Arrays.fill(values,"null");
   for (int i = 1; i < nRows; i++) {
     for (int j = 0; j < total+1; j++) {
-      if (dataArray[i][column].equals(values[j]))
-        test = 1;
+      if (!finished[i])
+        if (dataArray[i][column].equals(values[j]))
+          test = 1;
     }
     if (test == 0) {
       values[total] = dataArray[i][column];
@@ -58,4 +82,80 @@ class Helper {
     return aux;
   }
 
+  public static double[] columnGain(double[] gain) {
+    String[] valueList;
+    double entropyOriginal = initialEntropy(); //ENTROPIA INICIAL
+    for (int i = 1; i < nColumns-1; i++) {
+      valueList = differentValues(i); // VAI RECEBER O ARRAY COM OS VALORES DIFERENTES DA COLUNA
+      gain[i] = columnEntropy(valueList,i,entropyOriginal);
+      }
+    return gain;
+    }
+
+  public static double columnEntropy(String[] valueList,int column,double entropyOriginal) {
+    int[] nTypes = new int[valueList.length];
+    int nYes = 0, nNo = 0;
+    double gain,plus,minus;
+    double total = 0;
+    double fixedEntropy = entropyOriginal;
+    double[] entropy = new double[valueList.length];
+    for (int i = 0; i < nTypes.length; i++) {
+      for (int j = 1; j < nRows; j++) {
+        if (!finished[j])
+          if (dataArray[j][column].equals(valueList[i])) // CONTA O NUMERO DE OCORRENCIAS DE UM VALOR
+            nTypes[i]++;
+      }
+    }
+
+    for (int i = 0; i < nTypes.length; i++) {
+      nYes = nNo = 0;
+      plus = minus = 0;
+      for (int j = 1; j < nRows; j++) {
+        // VE SE A CONDICAO FINAL É YES OU NO
+        if (!finished[j])
+          if ((dataArray[j][nColumns-1].equals("No") || dataArray[j][nColumns-1].equals("no")) && dataArray[j][column].equals(valueList[i]))
+            nNo++;
+        }
+      for (int j = 1; j < nRows; j++) {
+        if (!finished[j])
+          if ((dataArray[j][nColumns-1].equals("Yes") || dataArray[j][nColumns-1].equals("yes")) && dataArray[j][column].equals(valueList[i]))
+            nYes++;
+      }
+      minus = (double)nNo/(double)(nTypes[i]);
+      plus = (double)nYes/(double)(nTypes[i]);
+      entropy[i] = -(plus*(Math.log(plus)/Math.log(2))) - (minus*(Math.log(minus)/Math.log(2))); //CALCULA A ENTROPIA DESSE VALOR
+      if (Double.isNaN(entropy[i])) entropy[i] = 0;
+    }
+    for (int i = 0; i < nTypes.length; i++) {
+      total += ((double)nTypes[i]/(double)(nRows-1))*entropy[i]; // CALCULA O INFORMATION VALUE DESSA COLUNA
+    }
+      gain = entropyOriginal-total; // CALCULA O GAIN DA COLUNA
+      return gain;
+  }
+
+  public static double partialProbability(int column, int value, String target) {
+    int nValues = 0;
+    int nTargets = 0;
+    double partial;
+    for (int i = 1; i < nRows; i++) {
+      if(!finished[i]){
+        if (dataArray[i][column].equals(target)) {
+          nTargets++;
+          if (dataArray[i][nColumns-1].equals(diffClasses[value]))
+            nValues++;
+          }
+        }
+      }
+    return (double)nValues/(double)nTargets;
+  }
+  public static int calcCounter(int column, String target) {
+    int counter = 0;
+    for (int i = 1; i < nRows; i++) {
+      if(!finished[i]){
+        if (dataArray[i][column].equals(target))
+          counter++;
+      }
+    }
+        return counter;
+  }
 }
