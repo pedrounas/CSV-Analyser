@@ -46,14 +46,13 @@ public static int checkMax() {
   Arrays.fill(gain,0.0);
   columnGain(gain);
   for(int i = 1; i < gain.length; i++) {
-      System.out.print(gain[i] + "   ");
+      //System.out.print(gain[i] + "   ");
       if (gain[i] > max && !visitedAttributes[i]) {
         max = gain[i];
         target = i;
       }
 
   }
-  System.out.println();
   if(target ==-1){
     return -1;
   }
@@ -130,14 +129,16 @@ public static LinkedList<String> ID3(int target, String[] examples, String[][] a
     diffClasses = differentValues(nColumns-1);
     gain = columnGain(gain);
     //ISTO É PARA TESTAR O COLUMN GAIN
-      for (int i = 1; i < nColumns - 1; i++) {
+      /*for (int i = 1; i < nColumns - 1; i++) {
       System.out.println(gain[i]);
-    }
+    }*/
     int target = checkMax();
     if (target!= -1)
       visitedAttributes[target] = true;
     LinkedList<String> tree = new LinkedList<String>();
-    //System.out.println(max + " " + target);
+    if (target == -1)
+      ID3(1,differentValues(1),dataArray,tree,-1);
+    else
     ID3(target,differentValues(target),dataArray,tree,-1);
   }
 }
